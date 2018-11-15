@@ -4,17 +4,19 @@ class Options {
   constructor() {
     this.options = {
       data: [],
-      isSort: false,
+      donutColor: '#ffffff',
       donutSize: '500',
-      centerSize: '200',
+      innerCircleColor: '#ffffff',
+      innerCircleSize: '200',
+      isContents: false,
+      isSort: false,
       target: null,
     };
   }
   setDatas(datas) {
     Object.assign(this.options, datas);
-
     if (this.options.isSort) {
-      this.options.data.sort(function (a, b) {
+      this.options.data.sort(function(a, b) {
         if (a.percent > b.percent) {
           return -1;
         }
@@ -31,11 +33,20 @@ class Options {
   getDataLength() {
     return this.options.data.length;
   }
+  getDonutColor() {
+    return this.options.donutColor;
+  }
   getDonutSize() {
     return this.options.donutSize;
   }
-  getCenterSize() {
-    return this.options.centerSize;
+  getInnerCircleColor() {
+    return this.options.innerCircleColor;
+  }
+  getInnerCircleSize() {
+    return this.options.innerCircleSize;
+  }
+  getIsContents() {
+    return this.options.isContents;
   }
   getTarget() {
     return this.options.target;

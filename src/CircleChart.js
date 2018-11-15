@@ -4,9 +4,7 @@ import Options from './Options';
 export default class CircleChart {
   constructor(options) {
     this.donut = null;
-    this.innerCircle = null;
     this.data = [];
-
     this.state = {
       currentDegree: 0,
       currentContentsDegree: 0,
@@ -19,30 +17,44 @@ export default class CircleChart {
   setDonut() {
     Options.getTarget().innerHTML = '';
     this.donut = document.createElement('div');
-    this.donut.setAttribute('class', CONFIG.CLASSNAME.DONUT_WRAPPER);
-    Object.assign(this.donut.style, CONFIG.STYLESHEET.DONUT_WRAPPER);
-    this.donut.style.width = Options.getDonutSize() + 'px';
-    this.donut.style.height = Options.getDonutSize() + 'px';
+    this.donut.className = CONFIG.CLASSNAME.DONUT;
+    const donutCss = {
+      width: Options.getDonutSize() + 'px',
+      height: Options.getDonutSize() + 'px',
+      'background-color': Options.getDonutColor(),
+    };
+    Object.assign(this.donut.style, CONFIG.STYLESHEET.DONUT, donutCss);
     Options.getTarget().appendChild(this.donut);
-
     this.data = Options.getData();
     this.dataLength = Options.getDataLength();
-
-    this.innerCircle = document.createElement('div');
-    this.innerCircle.setAttribute('class', CONFIG.CLASSNAME.DONUT_INNER_CIRCLE);
-    Object.assign(this.innerCircle.style, CONFIG.STYLESHEET.DONUT_INNER_CIRCLE);
-    this.innerCircle.style.width = Options.getCenterSize() + 'px';
-    this.innerCircle.style.height = Options.getCenterSize() + 'px';
-    this.innerCircle.style.marginTop = -(Options.getCenterSize() / 2) + 'px';
-    this.innerCircle.style.marginLeft = -(Options.getCenterSize() / 2) + 'px';
-
     for (let i = 0; i < this.dataLength; i++) {
       let donut = this.getDonutItem(this.data[i]);
-      let content = this.getItemInnerContents(this.data[i]);
       this.donut.appendChild(donut);
-      this.donut.appendChild(content);
-      this.donut.appendChild(this.innerCircle);
+      if (Options.getIsContents()) {
+        let contents = this.getItemInnerContents(this.data[i]);
+        this.donut.appendChild(contents);
+      }
     }
+    const innerCircle = this.getInnerCircle();
+    this.donut.appendChild(innerCircle);
+  }
+  getInnerCircle() {
+    const innerCircle = document.createElement('div');
+    const innerCircleSize = Options.getInnerCircleSize();
+    const innerCircleCss = {
+      width: innerCircleSize + 'px',
+      height: innerCircleSize + 'px',
+      'margin-top': -(innerCircleSize / 2) + 'px',
+      'margin-left': -(innerCircleSize / 2) + 'px',
+      'background-color': Options.getInnerCircleColor(),
+    };
+    Object.assign(
+      innerCircle.style,
+      CONFIG.STYLESHEET.DONUT_INNER_CIRCLE,
+      innerCircleCss
+    );
+    innerCircle.className = CONFIG.CLASSNAME.DONUT_INNER_CIRCLE;
+    return innerCircle;
   }
   getDonutItem(data) {
     let donutItem = document.createElement('div');
@@ -62,81 +74,66 @@ export default class CircleChart {
     donutRighttBox.className = CONFIG.CLASSNAME.DONUT_RIGHT_BOX;
     donutLeftBox.style.backgroundColor = data.color;
     donutRighttBox.style.backgroundColor = data.color;
-
-    const degree = data.percent * 3.6;
-
+    const degreeByPercent = data.percent * 3.6;
     donutItem.style.webkitTransform =
       'rotate(' + this.state.currentDegree + 'deg) translateZ(0)';
     donutItem.style.transform =
       'rotate(' + this.state.currentDegree + 'deg) translateZ(0)';
-    this.state.currentDegree = this.state.currentDegree + degree;
-    if (degree > 180) {
+    this.state.currentDegree = this.state.currentDegree + degreeByPercent;
+    if (degreeByPercent > 180) {
       donutRighttBox.style.webkitTransform = 'rotate(180deg)';
       donutRighttBox.style.transform = 'rotate(180deg)';
-      donutLeftBox.style.webkitTransform = 'rotate(' + degree + 'deg)';
-      donutLeftBox.style.transform = 'rotate(' + degree + 'deg)';
+      donutLeftBox.style.webkitTransform = 'rotate(' + degreeByPercent + 'deg)';
+      donutLeftBox.style.transform = 'rotate(' + degreeByPercent + 'deg)';
     } else {
-      donutRighttBox.style.webkitTransform = 'rotate(' + degree + 'deg)';
-      donutRighttBox.style.transform = 'rotate(' + degree + 'deg)';
+      donutRighttBox.style.webkitTransform =
+        'rotate(' + degreeByPercent + 'deg)';
+      donutRighttBox.style.transform = 'rotate(' + degreeByPercent + 'deg)';
     }
-
     donutRight.appendChild(donutRighttBox);
     donutLeft.appendChild(donutLeftBox);
     donutItem.appendChild(donutRight);
     donutItem.appendChild(donutLeft);
-
     return donutItem;
   }
   getItemInnerContents(data) {
-    let itemContentsWrap = document.createElement('div');
     let itemContentsPoint = document.createElement('div');
     let itemContentsGuideline = document.createElement('div');
     let itemContents = document.createElement('div');
-
-    // set classname
-    itemContentsWrap.className = CONFIG.CLASSNAME.ITEM_CONTENTS_WRAP;
-    itemContentsPoint.className = CONFIG.CLASSNAME.ITEM_CONTENTS_POINT;
-    itemContentsGuideline.className = CONFIG.CLASSNAME.ITEM_CONTENTS_GUIDELINE;
-    itemContents.className = CONFIG.CLASSNAME.ITEM_CONTENTS;
-
-    // set stylesheet
-    Object.assign(itemContentsWrap.style, CONFIG.STYLESHEET.ITEM_CONTENTS_WRAP);
     Object.assign(
       itemContentsPoint.style,
-      CONFIG.STYLESHEET.ITEM_CONTENTS_POINT
+      CONFIG.STYLESHEET.DONUT_CONTENTS_POINT
     );
     Object.assign(
       itemContentsGuideline.style,
-      CONFIG.STYLESHEET.ITEM_CONTENTS_GUIDELINE
+      CONFIG.STYLESHEET.DONUT_CONTENTS_GUIDELINE
     );
-    Object.assign(itemContents.style, CONFIG.STYLESHEET.ITEM_CONTENTS);
-
-    const degree = data.percent * 3.6;
-    const wrapRotate = degree / 2 + this.state.currentContentsDegree;
-    const guidelineRotate = -wrapRotate;
-
-    itemContentsWrap.style.webkitTransform = 'rotate(' + wrapRotate + 'deg)';
-    itemContentsWrap.style.transform = 'rotate(' + wrapRotate + 'deg)';
-    itemContentsGuideline.style.transform =
-      'rotate(' + guidelineRotate + 'deg) translateX(-50%) translateY(-50%)';
-
-    itemContentsGuideline.style.webkitTransform =
-      'rotate(' + guidelineRotate + 'deg) translateX(-50%) translateY(-50%)';
-    itemContentsGuideline.style.width =
-      (Options.getDonutSize() - Options.getCenterSize()) / 2 + 'px';
-
-    itemContents.innerHTML = data.name;
-
+    Object.assign(itemContents.style, CONFIG.STYLESHEET.DONUT_CONTENTS_HTML);
+    itemContentsPoint.className = CONFIG.CLASSNAME.DONUT_CONTENTS_POINT;
+    itemContentsGuideline.className = CONFIG.CLASSNAME.DONUT_CONTENTS_GUIDELINE;
+    itemContents.className = CONFIG.CLASSNAME.DONUT_CONTENTS_HTML;
+    const degreeByPercent = data.percent * 3.6;
+    const centerDegree = degreeByPercent / 2 + this.state.currentContentsDegree;
+    const donutHalfSize =
+      (Options.getDonutSize() - Options.getInnerCircleSize()) / 2;
+    const centerDonut = Options.getInnerCircleSize() / 2 + donutHalfSize / 2;
+    const pointTop = -(Math.cos((centerDegree * Math.PI) / 180) * centerDonut);
+    const pointLeft = Math.sin((centerDegree * Math.PI) / 180) * centerDonut;
+    const pointTopByCenter = Options.getDonutSize() / 2 + pointTop;
+    const pointLeftByCenter = Options.getDonutSize() / 2 + pointLeft;
+    itemContentsPoint.style.top = pointTopByCenter + 'px';
+    itemContentsPoint.style.left = pointLeftByCenter + 'px';
+    let minWidth = donutHalfSize;
+    if (donutHalfSize < 100) {
+      minWidth = 100;
+    }
+    itemContentsGuideline.style.width = minWidth + 'px';
+    itemContentsGuideline.style.marginLeft = -(minWidth / 2) + 'px';
+    itemContents.innerHTML = data.html;
     this.state.currentContentsDegree =
-      this.state.currentContentsDegree + degree;
-
-    itemContentsPoint.style.top =
-      (Options.getDonutSize() - Options.getCenterSize()) / 4 + 'px';
-
+      this.state.currentContentsDegree + degreeByPercent;
     itemContentsGuideline.appendChild(itemContents);
     itemContentsPoint.appendChild(itemContentsGuideline);
-    itemContentsWrap.appendChild(itemContentsPoint);
-
-    return itemContentsWrap;
+    return itemContentsPoint;
   }
 }
