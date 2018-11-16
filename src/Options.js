@@ -1,5 +1,3 @@
-import CONFIG from './Config';
-
 class Options {
   constructor() {
     this.options = {

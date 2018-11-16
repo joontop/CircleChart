@@ -117,9 +117,9 @@ export default class CircleChart {
     const donutHalfSize =
       (Options.getDonutSize() - Options.getInnerCircleSize()) / 2;
     const centerDonut = Options.getInnerCircleSize() / 2 + donutHalfSize / 2;
-    const pointTop = -(Math.cos((centerDegree * Math.PI) / 180) * centerDonut);
+    const pointTop = Math.cos((centerDegree * Math.PI) / 180) * centerDonut;
     const pointLeft = Math.sin((centerDegree * Math.PI) / 180) * centerDonut;
-    const pointTopByCenter = Options.getDonutSize() / 2 + pointTop;
+    const pointTopByCenter = Options.getDonutSize() / 2 - pointTop;
     const pointLeftByCenter = Options.getDonutSize() / 2 + pointLeft;
     itemContentsPoint.style.top = pointTopByCenter + 'px';
     itemContentsPoint.style.left = pointLeftByCenter + 'px';
