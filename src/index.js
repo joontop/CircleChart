@@ -6,12 +6,12 @@ let start = function() {
       {
         color: '#336699',
         html: '<div class="test_contents">Love</div>',
-        percent: 10,
+        percent: 9,
       },
       {
         color: '#4477aa',
         html: '<div class="test_contents">Passion</div>',
-        percent: 15,
+        percent: 16,
       },
       {
         color: '#5588bb',
@@ -21,12 +21,12 @@ let start = function() {
       {
         color: '#6699cc',
         html: '<div class="test_contents">Good</div>',
-        percent: 37,
+        percent: 32,
       },
       {
         color: '#77aadd',
         html: '<div class="test_contents">Good</div>',
-        percent: 3,
+        percent: 8,
       },
       {
         color: '#88bbee',
@@ -45,6 +45,7 @@ let start = function() {
     innerCircleSize: 150,
     isContents: true,
     isSort: true,
+    contentsMinWidth: 150,
     target: document.querySelector('#donutTest'),
   };
   const circleChart = new CircleChart(options);

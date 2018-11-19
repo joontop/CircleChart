@@ -1,6 +1,7 @@
 class Options {
   constructor() {
     this.options = {
+      contentsMinWidth: 100,
       data: [],
       donutColor: '#ffffff',
       donutSize: '500',
@@ -24,6 +25,13 @@ class Options {
         return 0;
       });
     }
+
+    if (this.options.contentsMinWidth <= 100) {
+      this.options.contentsMinWidth = 100;
+    }
+  }
+  getContentsMinWidth() {
+    return this.options.contentsMinWidth;
   }
   getData() {
     return this.options.data;
