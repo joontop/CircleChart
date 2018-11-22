@@ -1,4 +1,4 @@
-import CircleChart from './CircleChart';
+import CircleChart from './CircleChart/CircleChart';
 
 let start = function() {
   let options = {
@@ -39,12 +39,12 @@ let start = function() {
         percent: 5,
       },
     ],
-    donutColor: '#fffff',
-    donutSize: 300,
-    innerCircleColor: '#ffffff',
-    innerCircleSize: 150,
+    outerDiameter: 300,
+    innerDiameter: 150,
+    outerColor: '#ffffff',
+    innerColor: '#ffffff',
     isContents: true,
-    isSort: true,
+    isSortByDesc: true,
     contentsMinWidth: 150,
     target: document.querySelector('#donutTest'),
   };

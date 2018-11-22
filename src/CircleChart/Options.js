@@ -3,18 +3,18 @@ class Options {
     this.options = {
       contentsMinWidth: 100,
       data: [],
-      donutColor: '#ffffff',
-      donutSize: '500',
-      innerCircleColor: '#ffffff',
-      innerCircleSize: '200',
+      outerDiameter: '500',
+      innerDiameter: '200',
+      outerColor: '#ffffff',
+      innerColor: '#ffffff',
       isContents: false,
-      isSort: false,
+      isSortByDesc: false,
       target: null,
     };
   }
   setDatas(datas) {
     Object.assign(this.options, datas);
-    if (this.options.isSort) {
+    if (this.options.isSortByDesc) {
       this.options.data.sort(function(a, b) {
         if (a.percent > b.percent) {
           return -1;
@@ -25,7 +25,6 @@ class Options {
         return 0;
       });
     }
-
     if (this.options.contentsMinWidth <= 100) {
       this.options.contentsMinWidth = 100;
     }
@@ -36,20 +35,17 @@ class Options {
   getData() {
     return this.options.data;
   }
-  getDataLength() {
-    return this.options.data.length;
+  getOuterColor() {
+    return this.options.outerColor;
   }
-  getDonutColor() {
-    return this.options.donutColor;
+  getInnerColor() {
+    return this.options.innerColor;
   }
-  getDonutSize() {
-    return this.options.donutSize;
+  getOuterDiameter() {
+    return this.options.outerDiameter;
   }
-  getInnerCircleColor() {
-    return this.options.innerCircleColor;
-  }
-  getInnerCircleSize() {
-    return this.options.innerCircleSize;
+  getInnerDiameter() {
+    return this.options.innerDiameter;
   }
   getIsContents() {
     return this.options.isContents;
