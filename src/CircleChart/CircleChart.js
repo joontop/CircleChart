@@ -166,6 +166,16 @@ export default class CircleChart {
       }.bind(this)
     );
 
+    element.addEventListener(
+      'mouseout',
+      function(e) {
+        for (let i = 0; i < this.state.data.length; i++) {
+          this.state.items[i].classList.remove('on');
+          this.state.points[i].classList.remove('on');
+        }
+      }.bind(this)
+    );
+
     element.appendChild(areasFragment);
     return element;
   }

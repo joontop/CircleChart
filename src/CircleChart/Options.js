@@ -8,13 +8,13 @@ class Options {
       outerColor: '#ffffff',
       innerColor: '#ffffff',
       isContents: false,
-      isSortByDesc: false,
+      isDesc: false,
       target: null,
     };
   }
   setDatas(datas) {
     Object.assign(this.options, datas);
-    if (this.options.isSortByDesc) {
+    if (this.options.isDesc) {
       this.options.data.sort(function(a, b) {
         if (a.percent > b.percent) {
           return -1;

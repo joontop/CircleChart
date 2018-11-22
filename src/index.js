@@ -44,7 +44,7 @@ let start = function() {
     outerColor: '#ffffff',
     innerColor: '#ffffff',
     isContents: true,
-    isSortByDesc: true,
+    isDesc: true,
     contentsMinWidth: 150,
     target: document.querySelector('#donutTest'),
   };
