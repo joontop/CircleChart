@@ -36,6 +36,7 @@ export default class CircleChart {
     element.setAttribute('shape', 'poly');
     element.setAttribute('coords', coords);
     element.setAttribute('area-number', number);
+    this.state.areas.push(element);
     return element;
   }
 
@@ -43,7 +44,7 @@ export default class CircleChart {
     let element = document.createElement('div');
     element.setAttribute('class', CONFIG.CONTENTS.CLASSNAME);
     Object.assign(element.style, CONFIG.CONTENTS.CSS);
-    element.innerHTML = data.html;
+    element.innerHTML = data.html || '';
     return element;
   }
 
@@ -55,20 +56,13 @@ export default class CircleChart {
       height: this.state.outer.diameter + 'px',
       width: this.state.outer.diameter + 'px',
     });
-    const items = this.getItems();
-    const inner = this.getInner();
-    element.appendChild(items);
-    element.appendChild(inner);
-
+    element.appendChild(this.getItems());
+    element.appendChild(this.getInner());
     if (this.state.isContents) {
-      const img = this.getImg();
-      const map = this.getMap();
-      const points = this.getPoints();
-      element.appendChild(points);
-      element.appendChild(img);
-      element.appendChild(map);
+      element.appendChild(this.getPoints());
+      element.appendChild(this.getImg());
+      element.appendChild(this.getMap());
     }
-
     return element;
   }
 
@@ -76,8 +70,8 @@ export default class CircleChart {
     let element = document.createElement('div');
     element.setAttribute('class', CONFIG.GUIDELINE.CLASSNAME);
     Object.assign(element.style, CONFIG.GUIDELINE.CSS, {
-      width: Options.getContentsMinWidth() + 'px',
       marginLeft: -(Options.getContentsMinWidth() / 2) + 'px',
+      width: Options.getContentsMinWidth() + 'px',
     });
     return element;
   }
@@ -114,10 +108,10 @@ export default class CircleChart {
       element.setAttribute('item-number', i);
       element.setAttribute('class', CONFIG.ITEM.CLASSNAME);
       Object.assign(element.style, CONFIG.ITEM.CSS, {
-        marginLeft: -this.state.outer.radius + 'px',
-        marginTop: -this.state.outer.radius + 'px',
-        webkitTransform: 'rotate(' + startDegree + 'deg)',
-        transform: 'rotate(' + startDegree + 'deg)',
+        webkitTransform:
+          'rotate(' + startDegree + 'deg) translateX(-50%) translateY(-50%)',
+        transform:
+          'rotate(' + startDegree + 'deg) translateX(-50%) translateY(-50%)',
       });
       const degree = Math.round(this.state.data[i].percent * 3.6);
       startDegree = startDegree + degree;
@@ -146,38 +140,101 @@ export default class CircleChart {
       startDegree = startDegree + degree;
     }
 
-    element.addEventListener(
-      'mouseover',
-      function(e) {
-        for (let i = 0; i < this.state.data.length; i++) {
-          this.state.items[i].classList.remove('on');
-          this.state.points[i].classList.remove('on');
-        }
-        if (e.target && e.target.getAttribute('area-number')) {
-          const number = e.target.getAttribute('area-number');
-          if (
-            this.state.items[number].className.indexOf(' on') === -1 &&
-            this.state.points[number].className.indexOf(' on') === -1
-          ) {
-            this.state.items[number].classList.add('on');
-            this.state.points[number].classList.add('on');
-          }
-        }
-      }.bind(this)
-    );
+    // element.addEventListener(
+    //   'mouseover',
+    //   function(e) {
+    //     for (let i = 0; i < this.state.data.length; i++) {
+    //       this.state.items[i].classList.remove('on');
+    //       this.state.points[i].classList.remove('on');
+    //     }
+    //     if (e.target && e.target.getAttribute('area-number')) {
+    //       const number = e.target.getAttribute('area-number');
+    //       if (
+    //         this.state.items[number].className.indexOf(' on') === -1 &&
+    //         this.state.points[number].className.indexOf(' on') === -1
+    //       ) {
+    //         this.state.items[number].classList.add('on');
+    //         this.state.points[number].classList.add('on');
+    //       }
+    //     }
+    //   }.bind(this)
+    // );
+    //
+    // element.addEventListener(
+    //   'mouseout',
+    //   function(e) {
+    //     for (let i = 0; i < this.state.data.length; i++) {
+    //       this.state.items[i].classList.remove('on');
+    //       this.state.points[i].classList.remove('on');
+    //     }
+    //   }.bind(this)
+    // );
 
-    element.addEventListener(
-      'mouseout',
-      function(e) {
-        for (let i = 0; i < this.state.data.length; i++) {
-          this.state.items[i].classList.remove('on');
-          this.state.points[i].classList.remove('on');
-        }
-      }.bind(this)
-    );
+    element.addEventListener('touchstart', this.onStart.bind(this));
+    document.addEventListener('touchmove', this.onMove.bind(this));
+    document.addEventListener('touchend', this.onEnd.bind(this));
+
+    element.addEventListener('mouseover', this.onStart.bind(this));
+    element.addEventListener('mouseout', this.onEnd.bind(this));
 
     element.appendChild(areasFragment);
     return element;
+  }
+
+  onStart(e) {
+    this.state.isTouch = true;
+    e.preventDefault();
+    const target = document.elementFromPoint(e.pageX, e.pageY);
+    if (!target.getAttribute('area-number')) {
+      return;
+    }
+    const number = target.getAttribute('area-number');
+    for (let i = 0; i < this.state.items.length; i++) {
+      if (this.state.items[i].getAttribute('item-number') === number) {
+        if (this.state.items[i].className.indexOf(' on') === -1) {
+          this.state.items[i].classList.add('on');
+          this.state.points[i].classList.add('on');
+        }
+      } else {
+        if (this.state.items[i].className.indexOf(' on') !== -1) {
+          this.state.items[i].classList.remove('on');
+          this.state.points[i].classList.remove('on');
+        }
+      }
+    }
+  }
+
+  onMove(e) {
+    if (this.state.isTouch) {
+      const target = document.elementFromPoint(e.pageX, e.pageY);
+      if (!target.getAttribute('area-number')) {
+        return;
+      }
+      const number = target.getAttribute('area-number');
+      for (let i = 0; i < this.state.items.length; i++) {
+        if (this.state.items[i].getAttribute('item-number') === number) {
+          if (this.state.items[i].className.indexOf(' on') === -1) {
+            this.state.items[i].classList.add('on');
+            this.state.points[i].classList.add('on');
+          }
+        } else {
+          if (this.state.items[i].className.indexOf(' on') !== -1) {
+            this.state.items[i].classList.remove('on');
+            this.state.points[i].classList.remove('on');
+          }
+        }
+      }
+    }
+  }
+
+  onEnd() {
+    this.state.isTouch = false;
+    for (let i = 0; i < this.state.items.length; i++) {
+      if (this.state.items[i].className.indexOf(' on') !== -1) {
+        this.state.items[i].classList.remove('on');
+        this.state.points[i].classList.remove('on');
+      }
+    }
   }
 
   getPoints() {
@@ -255,17 +312,37 @@ export default class CircleChart {
         radius: Options.getInnerDiameter() / 2,
       },
       isContents: Options.getIsContents(),
+      isTouch: false,
       outer: {
         color: Options.getOuterColor(),
         diameter: Options.getOuterDiameter(),
         radius: Options.getOuterDiameter() / 2,
       },
       target: Options.getTarget(),
+      areas: [],
       items: [],
       points: [],
     };
     this.state.centerRadius =
       this.state.inner.radius +
       (this.state.outer.radius - this.state.inner.radius) / 2;
+  }
+
+  // todo : createElement
+  getElement(tagname, attribute, stylesheet) {
+    const element = document.createElement(tagname);
+    if (attribute) {
+      const keys = Object.keys(attribute);
+      for (let i = 0; i < keys.length; i++) {
+        element.setAttribute(keys[i], attribute[keys[i]]);
+      }
+    }
+    if (stylesheet) {
+      console.log(stylesheet);
+      for (let j = 0; j < stylesheet.length; j++) {
+        Object.assign(element.style, stylesheet[j]);
+      }
+    }
+    return element;
   }
 }

@@ -65,6 +65,8 @@ export default {
       height: '100%',
       webkitBorderRadius: '50%',
       borderRadius: '50%',
+      webkitTransformOrigin: '0 0',
+      transformOrigin: '0 0',
       backgroundColor: 'eee',
     },
     CLASSNAME: '__item',
