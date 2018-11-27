@@ -3,6 +3,7 @@
 <head>
     <title>Circle Chart</title>
     <style>
+        *{margin:0;padding:0;}
         #donutTest {
             position: absolute;
             top: 50px;
@@ -10,12 +11,12 @@
         }
 
         #donutTest .__donut {
-            border: 1px solid rgba(0, 0, 0, 0.3);
-            box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.15);
+            /*border: 1px solid rgba(0, 0, 0, 0.3);*/
+            /*box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.15);*/
         }
 
         #donutTest .__inner_circle {
-            border: 1px solid rgba(0, 0, 0, 0.3);
+            /*border: 1px solid rgba(0, 0, 0, 0.3);*/
         }
 
         #donutTest .test_contents {
@@ -32,12 +33,24 @@
             transition: all 0.2s linear;
         }
 
-        #donutTest .__item.on {
+        #donutTest .on .__item {
             width: 110% !important;
             height: 110% !important;
         }
 
-        #donutTest .__contents_point.on .test_contents {
+        #donutTest .on .test_contents {
+            font-size: 18px !important;
+        }
+        #donutTest .percent{
+            font-size: 11px;
+            font-family: sans-serif;
+            line-height: 18px;
+            color: #ff0;
+            -webkit-transition: all 0.2s linear;
+            transition: all 0.2s linear;
+
+        }
+        #donutTest .on .percent {
             font-size: 18px !important;
         }
     </style>

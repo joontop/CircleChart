@@ -5,7 +5,7 @@ let start = function() {
     data: [
       {
         color: '#336699',
-        html: '<div class="test_contents">Love</div>',
+        html: '<div class="test_contents">Love</div><p class="percent">9%</p>',
         percent: 9,
       },
       {
@@ -41,7 +41,7 @@ let start = function() {
     ],
     outerDiameter: 300,
     innerDiameter: 150,
-    outerColor: '#ffffff',
+    outerColor: '#99ccff',
     innerColor: '#ffffff',
     isContents: true,
     isDesc: true,

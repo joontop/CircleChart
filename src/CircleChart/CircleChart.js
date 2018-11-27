@@ -49,6 +49,7 @@ export default class CircleChart {
   }
 
   getDonut() {
+    let fragment = document.createDocumentFragment();
     let element = document.createElement('div');
     element.setAttribute('class', CONFIG.DONUT.CLASSNAME);
     Object.assign(element.style, CONFIG.DONUT.CSS, {
@@ -56,14 +57,14 @@ export default class CircleChart {
       height: this.state.outer.diameter + 'px',
       width: this.state.outer.diameter + 'px',
     });
-    element.appendChild(this.getItems());
+    element.appendChild(this.getDivider());
     element.appendChild(this.getInner());
     if (this.state.isContents) {
-      element.appendChild(this.getPoints());
       element.appendChild(this.getImg());
       element.appendChild(this.getMap());
     }
-    return element;
+    fragment.appendChild(element);
+    return fragment.firstChild;
   }
 
   getGuideline() {
@@ -100,30 +101,58 @@ export default class CircleChart {
     return element;
   }
 
-  getItems() {
+  getDivider() {
     let startDegree = 0;
-    let itemFragment = document.createDocumentFragment();
+    let fragment = document.createDocumentFragment();
     for (let i = 0, j = this.state.data.length; i < j; i++) {
       let element = document.createElement('div');
-      element.setAttribute('item-number', i);
-      element.setAttribute('class', CONFIG.ITEM.CLASSNAME);
-      Object.assign(element.style, CONFIG.ITEM.CSS, {
-        webkitTransform:
-          'rotate(' + startDegree + 'deg) translateX(-50%) translateY(-50%)',
-        transform:
-          'rotate(' + startDegree + 'deg) translateX(-50%) translateY(-50%)',
-      });
+      element.setAttribute('divider-number', i);
       const degree = Math.round(this.state.data[i].percent * 3.6);
+      const centerDegree = degree / 2 + startDegree;
+      element.appendChild(this.getItems(i, startDegree, degree));
+      if (this.state.isContents) {
+        element.appendChild(this.getPoints(i, centerDegree));
+      }
       startDegree = startDegree + degree;
-      const donutRight = this.getRight();
-      const donutLeft = this.getLeft();
-      donutRight.appendChild(this.getRightBox(this.state.data[i], degree));
-      donutLeft.appendChild(this.getLeftBox(this.state.data[i], degree));
-      element.appendChild(donutRight, donutLeft);
-      this.state.items.push(element);
-      itemFragment.appendChild(element);
+      this.state.dividers.push(element);
+      fragment.appendChild(element);
     }
-    return itemFragment;
+    return fragment;
+  }
+
+  getItems(number, startDegree, degree) {
+    let element = document.createElement('div');
+    element.setAttribute('class', CONFIG.ITEM.CLASSNAME);
+    Object.assign(element.style, CONFIG.ITEM.CSS, {
+      webkitTransform:
+        'rotate(' + startDegree + 'deg) translateX(-50%) translateY(-50%)',
+      transform:
+        'rotate(' + startDegree + 'deg) translateX(-50%) translateY(-50%)',
+    });
+    const donutRight = this.getRight();
+    const donutLeft = this.getLeft();
+    donutRight.appendChild(this.getRightBox(this.state.data[number], degree));
+    donutLeft.appendChild(this.getLeftBox(this.state.data[number], degree));
+    element.appendChild(donutRight, donutLeft);
+    return element;
+  }
+
+  getPoints(number, centerDegree) {
+    let element = document.createElement('div');
+    element.setAttribute('class', CONFIG.POINT.CLASSNAME);
+    const sin = this.getSin(centerDegree, this.state.centerRadius);
+    const cos = this.getCos(centerDegree, this.state.centerRadius);
+    const pointLeftByCenter = Math.round(this.state.outer.radius + sin);
+    const pointTopByCenter = Math.round(this.state.outer.radius - cos);
+    Object.assign(element.style, CONFIG.POINT.CSS, {
+      top: pointTopByCenter + 'px',
+      left: pointLeftByCenter + 'px',
+    });
+    const guideline = this.getGuideline();
+    const contents = this.getContents(this.state.data[number]);
+    guideline.appendChild(contents);
+    element.appendChild(guideline);
+    return element;
   }
 
   getMap() {
@@ -140,43 +169,14 @@ export default class CircleChart {
       startDegree = startDegree + degree;
     }
 
-    // element.addEventListener(
-    //   'mouseover',
-    //   function(e) {
-    //     for (let i = 0; i < this.state.data.length; i++) {
-    //       this.state.items[i].classList.remove('on');
-    //       this.state.points[i].classList.remove('on');
-    //     }
-    //     if (e.target && e.target.getAttribute('area-number')) {
-    //       const number = e.target.getAttribute('area-number');
-    //       if (
-    //         this.state.items[number].className.indexOf(' on') === -1 &&
-    //         this.state.points[number].className.indexOf(' on') === -1
-    //       ) {
-    //         this.state.items[number].classList.add('on');
-    //         this.state.points[number].classList.add('on');
-    //       }
-    //     }
-    //   }.bind(this)
-    // );
-    //
-    // element.addEventListener(
-    //   'mouseout',
-    //   function(e) {
-    //     for (let i = 0; i < this.state.data.length; i++) {
-    //       this.state.items[i].classList.remove('on');
-    //       this.state.points[i].classList.remove('on');
-    //     }
-    //   }.bind(this)
-    // );
-
-    element.addEventListener('touchstart', this.onStart.bind(this));
-    document.addEventListener('touchmove', this.onMove.bind(this));
-    document.addEventListener('touchend', this.onEnd.bind(this));
-
-    element.addEventListener('mouseover', this.onStart.bind(this));
-    element.addEventListener('mouseout', this.onEnd.bind(this));
-
+    if (this.state.isMobile) {
+      element.addEventListener('touchstart', this.onStart.bind(this));
+      document.addEventListener('touchmove', this.onMove.bind(this));
+      document.addEventListener('touchend', this.onEnd.bind(this));
+    } else {
+      element.addEventListener('mouseover', this.onStart.bind(this));
+      element.addEventListener('mouseout', this.onEnd.bind(this));
+    }
     element.appendChild(areasFragment);
     return element;
   }
@@ -184,21 +184,21 @@ export default class CircleChart {
   onStart(e) {
     this.state.isTouch = true;
     e.preventDefault();
-    const target = document.elementFromPoint(e.pageX, e.pageY);
+    const x = this.state.isMobile ? e.changedTouches[0].clientX : e.pageX;
+    const y = this.state.isMobile ? e.changedTouches[0].clientY : e.pageY;
+    const target = document.elementFromPoint(x, y);
     if (!target.getAttribute('area-number')) {
       return;
     }
     const number = target.getAttribute('area-number');
-    for (let i = 0; i < this.state.items.length; i++) {
-      if (this.state.items[i].getAttribute('item-number') === number) {
-        if (this.state.items[i].className.indexOf(' on') === -1) {
-          this.state.items[i].classList.add('on');
-          this.state.points[i].classList.add('on');
+    for (let i = 0; i < this.state.dividers.length; i++) {
+      if (this.state.dividers[i].getAttribute('divider-number') === number) {
+        if (this.state.dividers[i].className.indexOf('on') === -1) {
+          this.state.dividers[i].classList.add('on');
         }
       } else {
-        if (this.state.items[i].className.indexOf(' on') !== -1) {
-          this.state.items[i].classList.remove('on');
-          this.state.points[i].classList.remove('on');
+        if (this.state.dividers[i].className.indexOf('on') !== -1) {
+          this.state.dividers[i].classList.remove('on');
         }
       }
     }
@@ -206,21 +206,21 @@ export default class CircleChart {
 
   onMove(e) {
     if (this.state.isTouch) {
-      const target = document.elementFromPoint(e.pageX, e.pageY);
+      const x = this.state.isMobile ? e.changedTouches[0].clientX : e.pageX;
+      const y = this.state.isMobile ? e.changedTouches[0].clientY : e.pageY;
+      const target = document.elementFromPoint(x, y);
       if (!target.getAttribute('area-number')) {
         return;
       }
       const number = target.getAttribute('area-number');
-      for (let i = 0; i < this.state.items.length; i++) {
-        if (this.state.items[i].getAttribute('item-number') === number) {
-          if (this.state.items[i].className.indexOf(' on') === -1) {
-            this.state.items[i].classList.add('on');
-            this.state.points[i].classList.add('on');
+      for (let i = 0; i < this.state.dividers.length; i++) {
+        if (this.state.dividers[i].getAttribute('divider-number') === number) {
+          if (this.state.dividers[i].className.indexOf('on') === -1) {
+            this.state.dividers[i].classList.add('on');
           }
         } else {
-          if (this.state.items[i].className.indexOf(' on') !== -1) {
-            this.state.items[i].classList.remove('on');
-            this.state.points[i].classList.remove('on');
+          if (this.state.dividers[i].className.indexOf('on') !== -1) {
+            this.state.dividers[i].classList.remove('on');
           }
         }
       }
@@ -229,40 +229,11 @@ export default class CircleChart {
 
   onEnd() {
     this.state.isTouch = false;
-    for (let i = 0; i < this.state.items.length; i++) {
-      if (this.state.items[i].className.indexOf(' on') !== -1) {
-        this.state.items[i].classList.remove('on');
-        this.state.points[i].classList.remove('on');
+    for (let i = 0; i < this.state.dividers.length; i++) {
+      if (this.state.dividers[i].className.indexOf('on') !== -1) {
+        this.state.dividers[i].classList.remove('on');
       }
     }
-  }
-
-  getPoints() {
-    let pointFragment = document.createDocumentFragment();
-    let startDegree = 0;
-    for (let i = 0, j = this.state.data.length; i < j; i++) {
-      let element = document.createElement('div');
-      element.setAttribute('contents-number', i);
-      element.setAttribute('class', CONFIG.POINT.CLASSNAME);
-      const degree = Math.round(this.state.data[i].percent * 3.6);
-      const centerDegree = degree / 2 + startDegree;
-      const sin = this.getSin(centerDegree, this.state.centerRadius);
-      const cos = this.getCos(centerDegree, this.state.centerRadius);
-      const pointLeftByCenter = Math.round(this.state.outer.radius + sin);
-      const pointTopByCenter = Math.round(this.state.outer.radius - cos);
-      Object.assign(element.style, CONFIG.POINT.CSS, {
-        top: pointTopByCenter + 'px',
-        left: pointLeftByCenter + 'px',
-      });
-      startDegree = startDegree + degree;
-      const guideline = this.getGuideline();
-      const contents = this.getContents(this.state.data[i]);
-      guideline.appendChild(contents);
-      element.appendChild(guideline);
-      this.state.points.push(element);
-      pointFragment.appendChild(element);
-    }
-    return pointFragment;
   }
 
   getRight() {
@@ -312,6 +283,9 @@ export default class CircleChart {
         radius: Options.getInnerDiameter() / 2,
       },
       isContents: Options.getIsContents(),
+      isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      ),
       isTouch: false,
       outer: {
         color: Options.getOuterColor(),
@@ -320,8 +294,7 @@ export default class CircleChart {
       },
       target: Options.getTarget(),
       areas: [],
-      items: [],
-      points: [],
+      dividers: [],
     };
     this.state.centerRadius =
       this.state.inner.radius +
@@ -329,20 +302,20 @@ export default class CircleChart {
   }
 
   // todo : createElement
-  getElement(tagname, attribute, stylesheet) {
-    const element = document.createElement(tagname);
-    if (attribute) {
-      const keys = Object.keys(attribute);
-      for (let i = 0; i < keys.length; i++) {
-        element.setAttribute(keys[i], attribute[keys[i]]);
-      }
-    }
-    if (stylesheet) {
-      console.log(stylesheet);
-      for (let j = 0; j < stylesheet.length; j++) {
-        Object.assign(element.style, stylesheet[j]);
-      }
-    }
-    return element;
-  }
+  // getElement(tagname, attribute, stylesheet) {
+  //   const element = document.createElement(tagname);
+  //   if (attribute) {
+  //     const keys = Object.keys(attribute);
+  //     for (let i = 0; i < keys.length; i++) {
+  //       element.setAttribute(keys[i], attribute[keys[i]]);
+  //     }
+  //   }
+  //   if (stylesheet) {
+  //     console.log(stylesheet);
+  //     for (let j = 0; j < stylesheet.length; j++) {
+  //       Object.assign(element.style, stylesheet[j]);
+  //     }
+  //   }
+  //   return element;
+  // }
 }
