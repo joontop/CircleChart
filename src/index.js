@@ -4,27 +4,27 @@ let start = function() {
   let options = {
     data: [
       {
-        color: '#777fc6', // 색상
+        color: '#f2911b', // 색상
         html: '<div class="coin">Ethereum<br>30%</div>', // 보여줄 텍스트를 HTML로
         percent: 30, // 합이 100 이 되도록
       },
       {
-        color: '#82bce0',
+        color: '#f2b872',
         html: '<div class="coin">Bitcoin<br>25%</div>',
         percent: 25,
       },
       {
-        color: '#7ed794',
+        color: '#f58616',
         html: '<div class="coin">Bitcoin Cash<br>22%</div>',
         percent: 22,
       },
       {
-        color: '#fbb34e',
+        color: '#bf8b5e',
         html: '',
         percent: 13,
       },
       {
-        color: '#444444',
+        color: '#f2f2f2',
         html: '',
         percent: 10,
       },
