@@ -36,7 +36,7 @@ export default {
       position: 'absolute',
       top: 0,
       left: 0,
-      zIndex: 7,
+      zIndex: 4,
     },
     USEMAP_ID: 'imageMap',
     SRC:
@@ -47,13 +47,19 @@ export default {
       position: 'absolute',
       top: '50%',
       left: '50%',
-      zIndex: 5,
+      zIndex: 2,
       webkitBorderRadius: '50%',
       borderRadius: '50%',
       webkitBoxSizing: 'border-box',
       boxSizing: 'border-box',
     },
     CLASSNAME: '__inner_circle',
+  },
+  TRANSPARENT_INNER: {
+    CSS: {
+      backgroundColor: 'transparent',
+      zIndex: 5,
+    },
   },
   ITEM: {
     CSS: {
@@ -68,6 +74,7 @@ export default {
       webkitTransformOrigin: '0 0',
       transformOrigin: '0 0',
       backgroundColor: 'eee',
+      zIndex: 1,
     },
     CLASSNAME: '__item',
   },
@@ -128,7 +135,7 @@ export default {
       left: 0,
       width: 0,
       height: 0,
-      zIndex: 6,
+      zIndex: 3,
     },
     CLASSNAME: '__contents_point',
   },

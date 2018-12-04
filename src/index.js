@@ -1,4 +1,4 @@
-import CircleChart from 'joontop-circlechart';
+import CircleChart from './CircleChart/CircleChart';
 
 let start = function() {
   let options = {

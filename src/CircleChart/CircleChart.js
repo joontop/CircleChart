@@ -143,10 +143,7 @@ export default class CircleChart {
       height: this.state.outer.diameter + 'px',
       width: this.state.outer.diameter + 'px',
     });
-    Object.assign(transparentInner.style, {
-      backgroundColor: 'transparent',
-      zIndex: 8,
-    });
+    Object.assign(transparentInner.style, CONFIG.TRANSPARENT_INNER.CSS);
     element.appendChild(this.getDivider());
     element.appendChild(this.getInner());
     element.appendChild(transparentInner);
