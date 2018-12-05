@@ -143,7 +143,10 @@ export default class CircleChart {
       height: this.state.outer.diameter + 'px',
       width: this.state.outer.diameter + 'px',
     });
-    Object.assign(transparentInner.style, CONFIG.TRANSPARENT_INNER.CSS);
+    Object.assign(transparentInner.style, {
+      backgroundColor: 'transparent',
+      zIndex: 8,
+    });
     element.appendChild(this.getDivider());
     element.appendChild(this.getInner());
     element.appendChild(transparentInner);
@@ -167,7 +170,7 @@ export default class CircleChart {
 
   getImg() {
     let element = document.createElement('img');
-    element.setAttribute('usemap', '#' + CONFIG.IMG.USEMAP_ID);
+    element.setAttribute('usemap', '#' + Options.getId());
     element.setAttribute('src', CONFIG.IMG.SRC);
     Object.assign(element.style, CONFIG.IMG.CSS, {
       width: this.state.outer.diameter + 'px',
@@ -213,15 +216,16 @@ export default class CircleChart {
     element.setAttribute('class', CONFIG.ITEM.CLASSNAME);
     Object.assign(element.style, CONFIG.ITEM.CSS, {
       webkitTransform:
-        'rotate(' + startDegree + 'deg) translateX(-50%) translateY(-50%)',
+      'rotate(' + startDegree + 'deg) translateX(-50%) translateY(-50%)',
       transform:
-        'rotate(' + startDegree + 'deg) translateX(-50%) translateY(-50%)',
+      'rotate(' + startDegree + 'deg) translateX(-50%) translateY(-50%)',
     });
     const donutRight = this.getRight();
     const donutLeft = this.getLeft();
     donutRight.appendChild(this.getRightBox(this.state.data[number], degree));
     donutLeft.appendChild(this.getLeftBox(this.state.data[number], degree));
-    element.appendChild(donutRight, donutLeft);
+    element.appendChild(donutRight);
+    element.appendChild(donutLeft);
     return element;
   }
 
@@ -245,8 +249,8 @@ export default class CircleChart {
 
   getMap() {
     let element = document.createElement('map');
-    element.setAttribute('name', CONFIG.IMG.USEMAP_ID);
-    element.setAttribute('id', CONFIG.IMG.USEMAP_ID);
+    element.setAttribute('name', Options.getId());
+    element.setAttribute('id', Options.getId());
     let startDegree = 0;
     let areasFragment = document.createDocumentFragment();
     for (let i = 0; i < this.state.data.length; i++) {
@@ -279,8 +283,8 @@ export default class CircleChart {
     element.setAttribute('class', CONFIG.RIGHT_BOX.CLASSNAME);
     Object.assign(element.style, CONFIG.RIGHT_BOX.CSS, {
       backgroundColor: data.color,
-      webkitTransform: 'rotate(' + rightBoxDegree + 'deg)',
-      transform: 'rotate(' + rightBoxDegree + 'deg)',
+      webkitTransform: 'rotate(' + rightBoxDegree + 'deg) translateZ(0)',
+      transform: 'rotate(' + rightBoxDegree + 'deg) translateZ(0)',
     });
     return element;
   }
@@ -291,8 +295,8 @@ export default class CircleChart {
     element.setAttribute('class', CONFIG.LEFT_BOX.CLASSNAME);
     Object.assign(element.style, CONFIG.LEFT_BOX.CSS, {
       backgroundColor: data.color,
-      webkitTransform: 'rotate(' + leftBoxDegree + 'deg)',
-      transform: 'rotate(' + leftBoxDegree + 'deg)',
+      webkitTransform: 'rotate(' + leftBoxDegree + 'deg) translateZ(0)',
+      transform: 'rotate(' + leftBoxDegree + 'deg) translateZ(0)',
     });
     return element;
   }
