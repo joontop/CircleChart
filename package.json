@@ -7,17 +7,18 @@
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/joontop/Carousel.git"
+    "url": "git+https://github.com/joontop/CircleChart.git"
   },
   "scripts": {
-    "build": "webpack",
+    "build": "webpack --mode production",
     "dev": "webpack-dev-server --open --progress"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.5",
+    "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.7.0",
-    "joontop-circlechart": "^1.0.7",
+    "joontop-circlechart": "^1.0.14",
     "webpack": "^4.16.5",
     "webpack-cli": "^3.1.0",
     "webpack-dev-server": "^3.1.9"

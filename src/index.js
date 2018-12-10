@@ -1,4 +1,4 @@
-import CircleChart from './CircleChart/CircleChart';
+import CircleChart from 'joontop-circlechart';
 
 let start = function() {
   let options = {
@@ -28,6 +28,8 @@ let start = function() {
         html: '',
         percent: 5,
       },
+
+
     ],
     outerDiameter: 234, // 실제 도넛의 width,height
     innerDiameter: 170, // 안쪽원의 크기,  0이면 없음
